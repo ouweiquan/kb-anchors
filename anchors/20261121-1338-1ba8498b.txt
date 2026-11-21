@@ -1,0 +1,2 @@
+anchors/20261121-1338-1ba8498b.txt
+1ba8498becd072f5fc1f7fb5dcd57f52ba0c60ff11cdfe49e22e46a01f445ffd  MANIFEST.sha256
