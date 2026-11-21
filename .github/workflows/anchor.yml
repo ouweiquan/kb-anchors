@@ -61,23 +61,26 @@ jobs:
         run: |
           python3 - <<'PY'
           import json, hashlib, os, datetime
-          ms = hashlib.sha256(open('MANIFEST.sha256','rb').read()).hexdigest()
-          lines = sum(1 for _ in open('MANIFEST.sha256'))
-          led = sum(1 for _ in open('anchors/anchor_ledger.csv')) if os.path.exists('anchors/anchor_ledger.csv') else 0
-          anc = len([f for f in os.listdir('anchors') if f.endswith('.sha256')])
-          ancs = sorted([f for f in os.listdir('anchors') if f.endswith('.sha256')])
-          la = ancs[-1][:-7] if ancs else ''
+          # 公开仓没有私仓的 MANIFEST/ledger，缺失时按空处理，不能因此让 job 失败（否则证明提交被跳过）
+          mp = 'MANIFEST.sha256'
+          ms = hashlib.sha256(open(mp,'rb').read()).hexdigest() if os.path.exists(mp) else ''
+          lines = sum(1 for _ in open(mp)) if os.path.exists(mp) else 0
+          lp = 'anchors/anchor_ledger.csv'
+          led = sum(1 for _ in open(lp)) if os.path.exists(lp) else 0
+          anc = len([f for f in os.listdir('anchors') if f.endswith('.txt')])
+          ancs = sorted([f for f in os.listdir('anchors') if f.endswith('.txt')])
+          la = ancs[-1][:-4] if ancs else ''
           d = {"end":"actions","ts":datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
                "host":os.environ.get('GITHUB_RUN_ID','actions'),"boot":"github-runner",
                "latest_anchor":la,
                "manifest_sha":ms,"manifest_lines":lines,"ledger_lines":led,"anchor_count":anc}
           os.makedirs('ends', exist_ok=True)
           json.dump(d, open('ends/actions.json','w'), ensure_ascii=False, indent=2)
-          print('actions end registered', ms[:8])
+          print('actions end registered', ms[:8], la)
           PY
       - name: Commit upgraded proofs
         run: |
           git config user.name  "anchor-bot"
           git config user.email "anchor-bot@users.noreply.github.com"
           git add anchors ends
-          if git diff --cached --quiet; then echo "no change (still waiting block)"; else git commit -m "anchor: upgrade bitcoin timestamp $(date -u '+%F %H:%M')" && { git push || { git pull --rebase --autostash -q && git push; }; }; fi
+          if git diff --cached --quiet; then echo "no change (still waiting block)"; else git commit -m "anchor: stamp/upgrade proofs $(date -u '+%F %H:%M')" && { git push || { git pull --rebase --autostash -q && git push; }; }; fi
