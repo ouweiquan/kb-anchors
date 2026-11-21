@@ -1,18 +1,1 @@
-{
-  "file": "engine/merkle_probe.py",
-  "sha256": "20be5fcd11eb73a0e4bb9090c8cac777e00a3ca858cad6e75b7bddc91f13d978",
-  "root": "78134b892dc99b93ceb4cb4aecf97569edc37111ce6f28d83d3a25791f205b9f",
-  "path": [
-    ["c64ffec13bc2545002bb6a4efbde9ed87200d44a5c350ade4ded3971e50e1365", "R"],
-    ["48246f45d6e9fba476b1d3c72b35d93fc781aaeedbd50aab2f883b8375bc6558", "L"],
-    ["0401accdcd16ee43889b4713bd14390a495716bec2c2a1e45bc28e0efb00bf6c", "L"],
-    ["8a487fa79fc6cedcbeedd5ce472734c21958ce776ff5428b5916e617632c3825", "R"],
-    ["df62b43c41fcbb0ffbb9ae566f0122ddb6b8a9608449d97fa705962f7c4740b8", "L"],
-    ["b16a49fbce1468401de3c36ca1889cba20d803df849c11ecb229d413afc28cae", "L"],
-    ["12cdcd4bc841f4b7ef5ddddc5f091a279a8b1bc8853aa3a0fe065014bc3e071d", "L"],
-    ["5e5662c915e4c15394ece104b8649fced7afa9d9f50eebc1ebd5993f4fb5cfad", "L"],
-    ["a4f5ea46729daffa5dac80db0343ef0bdbaf93296cf7a0a83271f1d3079082b9", "R"]
-  ],
-  "leaf_data_recipe": "path + '\\x00' + sha256hex",
-  "verify": "h=H(0x00||leaf_data); 逐层 h=H(0x01||h||sib) 若 side=R 否则 H(0x01||sib||h); 末值应等于 root"
-}
+{"file": "engine/merkle_probe.py", "sha256": "20be5fcd11eb73a0e4bb9090c8cac777e00a3ca858cad6e75b7bddc91f13d978", "root": "985c7940d143acb7f6347e4131fd119ff0d9d4fa1717dd64401c4c0804dbbe1e", "path": [["c64ffec13bc2545002bb6a4efbde9ed87200d44a5c350ade4ded3971e50e1365", "R"], ["f640f20668857bf6ce9b5ebf140d82be0f002a5c52a83b2b3374945e55a7d4fe", "R"], ["15bae1b1ba714b9139d375944c83e40fab9c389e5a4bb26854e7074acb22f538", "L"], ["10f32137c5862fc5aeaadd74f4e90ffd10b70d500c532f3cb9a3ee53e3913d17", "L"], ["a5a948803477e2c367831810605d5c90bedbae89500bd2558bbc68d65b5db8fb", "L"], ["43b295b936725c3ebf1bcb9f81914adfa2f693007ba4351d5b454af961470862", "L"], ["98b77bfd58ade1d5bf01769175ea0541462595da27b5c595db5e6518d1eb460f", "L"], ["c6f38699cbeb9073068b10edafc30a9046ad8ff975065cf9624e3d57cbbb19ee", "L"], ["b7eab797affa942533713f75341de3a4c6f88b08a6ef0f6a740e29c5a489daeb", "R"]]}

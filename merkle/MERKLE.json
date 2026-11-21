@@ -1,6 +1,6 @@
 {
-  "root": "78134b892dc99b93ceb4cb4aecf97569edc37111ce6f28d83d3a25791f205b9f",
-  "leaves": 360,
+  "root": "985c7940d143acb7f6347e4131fd119ff0d9d4fa1717dd64401c4c0804dbbe1e",
+  "leaves": 366,
   "height": 10,
   "scheme": "RFC6962-style SHA-256, leaf=H(0x00||data), node=H(0x01||L||R)",
   "leaf_data": "path + '\\x00' + sha256hex"
