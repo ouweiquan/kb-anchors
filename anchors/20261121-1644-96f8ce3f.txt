@@ -1,0 +1,7 @@
+# KB Anchor Attestation (compact · 不公开文件清单)
+anchor_id: 20261121-1644-96f8ce3f
+manifest_sha256: 96f8ce3f1edd64d2bd7b0429d063ce213a6977d4b3051ef8963f3c8f70ff05ea
+manifest_files: 420
+merkle_root: 777a33bcffa063408ebc4469fea64e7e78b513891f66259b92302eed0f349f90
+ots_note: 本文件由公开仓 workflow 自动 ots stamp（anchors/20261121-1644-96f8ce3f.txt.ots），无需内嵌二进制；本锚与 seq36 同清单哈希，属空锚守卫上线前的冗余锚，保留以不断链
+verify_hint: ots verify anchors/20261121-1644-96f8ce3f.txt.ots —— 证明本文件在某个比特币区块时间前已存在；manifest_sha256 即私有仓 MANIFEST 全量清单的 sha256；单文件证明见 merkle/
