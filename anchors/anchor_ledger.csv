@@ -25,3 +25,4 @@ seq,ts,hash16,stamp,calendar,block,state
 24,2026-11-21 14:02:38,5501e239dd70dab4,20261121-1402-5501e239.sha256.ots,4,none,pending_btc
 2026-11-21 06:04:17,stamp-upgrade,new=1,confirmed=0,pending=5,bad=18
 2026-11-21 06:16:55,stamp-upgrade,new=1,confirmed=0,pending=5,bad=19
+2026-11-21 06:31:24,stamp-upgrade,new=1,confirmed=0,pending=6,bad=19
