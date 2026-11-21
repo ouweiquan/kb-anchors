@@ -1,0 +1,60 @@
+name: anchor
+
+# 证据仓自生成证明：只要 .txt 里的哈希在，就能重新 stamp 出 .ots
+# 触发包含 push —— 这使得“提交哈希”与“生成证明”在同一个提交里完成，无需人工
+
+on:
+  push:
+    paths: ['anchors/**']
+    branches: [main]
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  stamp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install OpenTimestamps
+        run: pip install --quiet opentimestamps-client
+      - name: Stamp missing + upgrade all
+        run: |
+          new=0; conf=0; pend=0; bad=0
+          shopt -s nullglob
+          for t in anchors/*.txt; do
+            o="$t.ots"
+            if [ ! -f "$o" ]; then
+              if ots stamp "$t" >/dev/null 2>&1; then new=$((new+1)); fi
+            fi
+          done
+          for f in anchors/*.ots; do
+            ots upgrade "$f" >/dev/null 2>&1 || true
+            out=$(ots verify "$f" 2>&1 | grep -oE "Success! Bitcoin block [0-9]+|Pending confirmation|Failed" | head -1)
+            case "$out" in
+              Success*) conf=$((conf+1)) ;;
+              Pending*) pend=$((pend+1)) ;;
+              *)        bad=$((bad+1)) ;;
+            esac
+          done
+          printf '%s,stamp-upgrade,new=%s,confirmed=%s,pending=%s,bad=%s\n' "$(date -u '+%F %T')" "$new" "$conf" "$pend" "$bad" >> anchors/anchor_ledger.csv
+          echo "new=$new confirmed=$conf pending=$pend bad=$bad"
+      - name: Commit
+        run: |
+          git config user.name  "anchor-bot"
+          git config user.email "anchor-bot@users.noreply.github.com"
+          git add anchors
+          if git diff --cached --quiet; then
+            echo "no change"
+          else
+            git commit -m "anchor: stamp/upgrade proofs $(date -u '+%F %H:%M') [skip ci]"
+            git push
+          fi
