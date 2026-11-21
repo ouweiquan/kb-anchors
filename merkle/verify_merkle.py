@@ -24,7 +24,7 @@ def sha256_file(p: str) -> str:
     with open(p, "rb") as f:
         for chunk in iter(lambda: f.read(1 << 20), b""):
             h.update(chunk)
-    return h.hex()
+    return h.hexdigest()
 
 
 def main():
@@ -38,9 +38,11 @@ def main():
 
     got = sha256_file(local_file)
     if got != pf["sha256"]:
-        print(f"❌ 文件哈希不符\n   本地 {got}\n   证明 {pf['sha256']}")
+        print("\u274c 文件哈希不符")
+        print("   本地 " + got)
+        print("   证明 " + pf["sha256"])
         return 1
-    print(f"✅ 文件哈希匹配 {got[:16]}…")
+    print("\u2705 文件哈希匹配 " + got[:16] + "\u2026")
 
     data = (pf["file"] + "\x00" + got).encode()
     h = leaf_hash(data)
@@ -50,12 +52,15 @@ def main():
     root = h.hex()
 
     if root == pf["root"]:
-        print(f"✅ 审计路径成立（{len(pf['path'])} 步）")
-        print(f"✅ 归属于 MERKLE ROOT {root}")
-        print(f"\n结论：'{pf['file']}' 确实存在于该根所代表的清单中。")
+        print("\u2705 审计路径成立（" + str(len(pf["path"])) + " 步）")
+        print("\u2705 归属于 MERKLE ROOT " + root)
+        print("")
+        print("结论：'" + pf["file"] + "' 确实存在于该根所代表的清单中。")
         return 0
 
-    print(f"❌ 路径不成立\n   计算 {root}\n   证明 {pf['root']}")
+    print("\u274c 路径不成立")
+    print("   计算 " + root)
+    print("   证明 " + pf["root"])
     return 1
 
 
