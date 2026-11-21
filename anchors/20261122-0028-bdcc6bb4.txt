@@ -1,6 +1,6 @@
 # KB Anchor Attestation (compact · 不公开文件清单)
 anchor_id: 20261122-0028-bdcc6bb4
-manifest_sha256: bdcc6bb439993b66a9c6c12bd180eacb451678f84a5af4b53c6f8ca3722f9675
+manifest_sha256: bdcc6bb439993b66f0e89f8d47273d53ee11080c038a11bea2db8daea8742f13
 manifest_files: 435
 merkle_root: 777a33bcffa063408ebc4469fea64e7e78b513891f66259b92302eed0f349f90
 ots_note: 本文件由公开仓 workflow 自动 ots stamp（anchors/20261122-0028-bdcc6bb4.txt.ots），无需内嵌二进制
