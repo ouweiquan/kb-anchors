@@ -1,21 +1,21 @@
-name: anchor
-
-# 证据仓自生成证明：只要 .txt 里的哈希在，就能重新 stamp 出 .ots
-# 触发包含 push —— 这使得“提交哈希”与“生成证明”在同一个提交里完成，无需人工
+name: anchor-upgrade
 
 on:
-  push:
-    paths: ['anchors/**']
-    branches: [main]
   schedule:
     - cron: "17 2 * * *"
+  push:
+    branches: [main]
+    paths:
+      - "anchors/**"
+      - "MANIFEST.sha256"
+      - ".github/workflows/anchor.yml"
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
 jobs:
-  stamp:
+  upgrade:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,35 +26,58 @@ jobs:
           python-version: "3.12"
       - name: Install OpenTimestamps
         run: pip install --quiet opentimestamps-client
-      - name: Stamp missing + upgrade all
+      - name: Stamp attestation bodies (missing or stale .txt.ots)
         run: |
-          new=0; conf=0; pend=0; bad=0
+          # 为什么要这步：紧凑证明正文被修正后，旧 .txt.ots 仍绑定旧内容，等于证明错文件
+          st=0; skip=0
           shopt -s nullglob
-          for t in anchors/*.txt; do
-            o="$t.ots"
-            if [ ! -f "$o" ]; then
-              if ots stamp "$t" >/dev/null 2>&1; then new=$((new+1)); fi
+          for f in anchors/*.txt; do
+            if [ -f "$f.ots" ] && ots verify "$f.ots" >/dev/null 2>&1 && ! ots verify "$f.ots" 2>&1 | grep -qi "does not match"; then
+              skip=$((skip+1)); continue
             fi
+            rm -f "$f.ots"
+            if ots stamp "$f" >/dev/null 2>&1; then st=$((st+1)); else echo "stamp 失败: $f"; fi
           done
-          for f in anchors/*.ots; do
+          printf '%s,stamp,stamped=%s,skipped=%s\n' "$(date -u '+%F %T')" "$st" "$skip" >> anchors/anchor_ops.actions.log
+          echo "stamped=$st skipped=$skip"
+      - name: Upgrade anchors
+        run: |
+          conf=0; sent=0; pend=0; bad=0; nocone=0
+          shopt -s nullglob
+          for f in anchors/*.sha256.ots; do
             ots upgrade "$f" >/dev/null 2>&1 || true
-            out=$(ots verify "$f" 2>&1 | grep -oE "Success! Bitcoin block [0-9]+|Pending confirmation|Failed" | head -1)
+            out=$(ots verify "$f" 2>&1 | grep -oE "Success! Bitcoin block [0-9]+|Timestamped by transaction|Pending confirmation|Failed|Could not connect" | head -1)
             case "$out" in
               Success*) conf=$((conf+1)) ;;
+              Timestamped*) sent=$((sent+1)) ;;
               Pending*) pend=$((pend+1)) ;;
-              *)        bad=$((bad+1)) ;;
+              *"Could not connect"*) nocone=$((nocone+1)) ;;
+              *) bad=$((bad+1)) ;;
             esac
           done
-          printf '%s,stamp-upgrade,new=%s,confirmed=%s,pending=%s,bad=%s\n' "$(date -u '+%F %T')" "$new" "$conf" "$pend" "$bad" >> anchors/anchor_ledger.csv
-          echo "new=$new confirmed=$conf pending=$pend bad=$bad"
-      - name: Commit
+          printf '%s,upgrade,confirmed=%s,onchain=%s,pending=%s,bad=%s,no_node=%s\n' "$(date -u '+%F %T')" "$conf" "$sent" "$pend" "$bad" "$nocone" >> anchors/anchor_ops.actions.log
+          echo "confirmed=$conf onchain=$sent pending=$pend bad=$bad no_node=$nocone"
+      - name: Register actions end (multi-end heartbeat)
+        run: |
+          python3 - <<'PY'
+          import json, hashlib, os, datetime
+          ms = hashlib.sha256(open('MANIFEST.sha256','rb').read()).hexdigest()
+          lines = sum(1 for _ in open('MANIFEST.sha256'))
+          led = sum(1 for _ in open('anchors/anchor_ledger.csv')) if os.path.exists('anchors/anchor_ledger.csv') else 0
+          anc = len([f for f in os.listdir('anchors') if f.endswith('.sha256')])
+          ancs = sorted([f for f in os.listdir('anchors') if f.endswith('.sha256')])
+          la = ancs[-1][:-7] if ancs else ''
+          d = {"end":"actions","ts":datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'),
+               "host":os.environ.get('GITHUB_RUN_ID','actions'),"boot":"github-runner",
+               "latest_anchor":la,
+               "manifest_sha":ms,"manifest_lines":lines,"ledger_lines":led,"anchor_count":anc}
+          os.makedirs('ends', exist_ok=True)
+          json.dump(d, open('ends/actions.json','w'), ensure_ascii=False, indent=2)
+          print('actions end registered', ms[:8])
+          PY
+      - name: Commit upgraded proofs
         run: |
           git config user.name  "anchor-bot"
           git config user.email "anchor-bot@users.noreply.github.com"
-          git add anchors
-          if git diff --cached --quiet; then
-            echo "no change"
-          else
-            git commit -m "anchor: stamp/upgrade proofs $(date -u '+%F %H:%M') [skip ci]"
-            git push
-          fi
+          git add anchors ends
+          if git diff --cached --quiet; then echo "no change (still waiting block)"; else git commit -m "anchor: upgrade bitcoin timestamp $(date -u '+%F %H:%M')" && { git push || { git pull --rebase --autostash -q && git push; }; }; fi
