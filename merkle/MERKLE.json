@@ -1,0 +1,7 @@
+{
+  "root": "78134b892dc99b93ceb4cb4aecf97569edc37111ce6f28d83d3a25791f205b9f",
+  "leaves": 360,
+  "height": 10,
+  "scheme": "RFC6962-style SHA-256, leaf=H(0x00||data), node=H(0x01||L||R)",
+  "leaf_data": "path + '\\x00' + sha256hex"
+}
