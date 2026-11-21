@@ -27,3 +27,4 @@ seq,ts,hash16,stamp,calendar,block,state
 2026-11-21 06:16:55,stamp-upgrade,new=1,confirmed=0,pending=5,bad=19
 2026-11-21 06:31:24,stamp-upgrade,new=1,confirmed=0,pending=6,bad=19
 2026-11-21 08:19:21,stamp-upgrade,new=1,confirmed=0,pending=1,bad=25
+2026-11-21 08:20:53,stamp-upgrade,new=1,confirmed=0,pending=1,bad=26
