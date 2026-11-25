@@ -1,0 +1,12 @@
+{
+  "end": "node",
+  "ts": "2026-11-25T04:57:42Z",
+  "host": "vm-main",
+  "boot": "container",
+  "ledger_lines": 2170,
+  "last_bar": "2026-11-25 12:50",
+  "fingerprint": "8922c5cbf734a33c",
+  "lag_min": 2.0,
+  "source": "mirror",
+  "count": 2170
+}
