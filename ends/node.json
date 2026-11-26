@@ -1,12 +1,12 @@
 {
   "end": "node",
-  "ts": "2026-11-26T01:02:02Z",
+  "ts": "2026-11-26T02:47:03Z",
   "host": "vm-main",
   "boot": "container",
-  "ledger_lines": 2411,
-  "last_bar": "2026-11-26 08:55",
-  "fingerprint": "856a283f2b7db94d",
+  "ledger_lines": 2432,
+  "last_bar": "2026-11-26 10:40",
+  "fingerprint": "bfa4415f5732b665",
   "lag_min": 2.0,
   "source": "mirror",
-  "count": 2411
+  "count": 2432
 }
